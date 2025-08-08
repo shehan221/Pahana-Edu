@@ -1,268 +1,257 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Pahana Edu</title>
+    <title>Pahana Edu - Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            background: #f9fafb;
+            margin: 0;
         }
 
+        /* Header */
         .header {
-            background: #059669;
-            color: white;
+            background: #ffffff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 999;
             padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .logo {
+        .header .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #059669;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            font-size: 1.5rem;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .logout-btn {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            cursor: pointer;
+            gap: 10px;
             text-decoration: none;
-            transition: background-color 0.3s;
         }
 
-        .logout-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
+        .header .logo:hover {
+            text-decoration: underline;
         }
 
-        .main-content {
-            padding: 2rem;
-            max-width: 1000px;
-            margin: 0 auto;
+        .header .user-info {
+            font-weight: 500;
+            color: #374151;
         }
 
-        .welcome-card {
-            background: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            margin-bottom: 2rem;
+        /* Navigation Bar */
+    .navbar {
+    background-color: #f2f2f2; /* Light gray background */
+    padding: 12px 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Subtle shadow */
+}
+
+.nav-links {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #333; /* Dark gray text */
+    font-size: 16px;
+    font-weight: 500;
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.nav-links a:hover {
+    color: #007bff; /* Smooth blue on hover */
+    transform: translateY(-2px); /* Lift effect */
+}
+
+        .main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+       .hero {
+    margin-top: 2rem; /* Add this line */
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: center;
+    margin-bottom: 4rem;
+}
+
+        .hero img {
+            width: 100%;
+            border-radius: 20px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-family: 'Playfair Display', serif;
+            color: #1f2937;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: #6b7280;
+            margin-top: 1rem;
+        }
+
+        .books-section {
+            margin-top: 4rem;
+        }
+
+        .books-section h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
             text-align: center;
-        }
-
-        .welcome-title {
-            font-size: 2rem;
-            color: #333;
-            margin-bottom: 0.5rem;
-        }
-
-        .welcome-subtitle {
-            color: #666;
-            font-size: 1rem;
-        }
-
-        .user-details {
-            background: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             margin-bottom: 2rem;
+            color: #111827;
+            position: relative;
         }
 
-        .user-details h3 {
-            color: #333;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+        .books-section h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: #059669;
         }
 
-        .detail-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.75rem 0;
-            border-bottom: 1px solid #eee;
+        .book-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
         }
 
-        .detail-row:last-child {
-            border-bottom: none;
+        .book-card {
+            background: #ffffff;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s;
         }
 
-        .detail-label {
-            font-weight: 600;
-            color: #333;
+        .book-card:hover {
+            transform: translateY(-5px);
         }
 
-        .detail-value {
-            color: #666;
+        .book-card img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
         }
 
-        .status-active {
+        .book-info {
+            padding: 1rem;
+        }
+
+        .book-info h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: #1f2937;
+        }
+
+        .book-info p {
             color: #059669;
             font-weight: 600;
         }
 
-        .status-inactive {
-            color: #dc2626;
-            font-weight: 600;
-        }
-
-        .actions {
-            background: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        footer {
             text-align: center;
-        }
-
-        .action-btn {
-            background: #059669;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            margin: 0 0.5rem;
-            transition: background-color 0.3s;
-        }
-
-        .action-btn:hover {
-            background: #047857;
-        }
-
-        .action-btn.secondary {
-            background: #6b7280;
-        }
-
-        .action-btn.secondary:hover {
-            background: #4b5563;
-        }
-
-        @media (max-width: 768px) {
-            .header {
-                padding: 1rem;
-                flex-direction: column;
-                gap: 1rem;
-                text-align: center;
-            }
-
-            .main-content {
-                padding: 1rem;
-            }
-
-            .user-info {
-                flex-direction: column;
-            }
+            padding: 2rem;
+            background: #1f2937;
+            color: #d1d5db;
+            margin-top: 4rem;
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="logo">
-            📚 Pahana Edu
-        </div>
-        <div class="user-info">
-            <span>Welcome, ${user.fullName}!</span>
-            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">
-                🚪 Logout
-            </a>
-        </div>
-    </header>
-
+    <!-- Header with Clickable Logo -->
+    <header class="header" style="display: flex; justify-content: space-between; align-items: center;">
+    <a href="dashboard.jsp" class="logo" style="text-decoration: none; font-size: 20px; color: #111;">
+        <i class="fas fa-book-reader"></i> Pahana Edu
+    </a>
+    <div class="user-info">
+        <a href="${pageContext.request.contextPath}/pages/profile.jsp" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: #374151;">
+            <img src="${pageContext.request.contextPath}/images/dashboard/profile.png" alt="User Icon" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
+            <span style="font-weight: 500; font-size: 14px; line-height: 1;"> 
+                <c:out value="${sessionScope.user.username}" default="Guest" />
+            </span>
+        </a>
+    </div>
+</header>
+    <!-- Navigation Bar -->
+   <nav class="navbar">
+    <div class="nav-links">
+        <a href="#">Home</a>
+        <a href="#">Books</a>
+        <a href="#">About</a>
+        <a href="#">Contact</a>
+    </div>
+</nav>
     <!-- Main Content -->
-    <main class="main-content">
-        <!-- Welcome Section -->
-        <div class="welcome-card">
-            <h1 class="welcome-title">Dashboard</h1>
-            <p class="welcome-subtitle">Welcome to Pahana Education Management System</p>
-        </div>
+    <main class="main">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div>
+                <h1>Explore Knowledge with Pahana Edu</h1>
+                <p>Serving the heart of Colombo with quality books, smart billing, and modern inventory systems. Discover what makes us Sri Lanka’s trusted bookshop since 1995.</p>
+            </div>
+            <img src="<c:url value='/images/dashboard/bookshop.png' />" alt="Bookstore Image">
+        </section>
 
-        <!-- User Details -->
-        <div class="user-details">
-            <h3>👤 Your Account Information</h3>
-            
-            <div class="detail-row">
-                <span class="detail-label">Full Name:</span>
-                <span class="detail-value">${user.fullName}</span>
+        <!-- Books Section -->
+        <section class="books-section">
+            <h2>Popular Books</h2>
+            <div class="book-grid">
+                <div class="book-card">
+                   <img src="<c:url value='/images/dashboard/banjo.jpg' />" alt="Book 1">
+                    <div class="book-info">
+                        <h3>Bonjo</h3>
+                        <p>LKR 2,500</p>
+                    </div>
+                </div>
+                <div class="book-card">
+                    <img src="<c:url value='/images/dashboard/dry ur tears.jpg' />" alt="Book 2">
+                    <div class="book-info">
+                        <h3>Dry Your Tears</h3>
+                        <p>LKR 1,800</p>
+                    </div>
+                </div>
+                <div class="book-card">
+                    <img src="<c:url value='/images/dashboard/sonny boy.jpg' />" alt="Book 3">
+                    <div class="book-info">
+                        <h3>Sonny Boy</h3>
+                        <p>LKR 2,100</p>
+                    </div>
+                </div>
+                <div class="book-card">
+                    <img src="<c:url value='/images/dashboard/Irene.jpg' />" alt="Book 4">
+                    <div class="book-info">
+                        <h3>Rich Dad Poor Dad</h3>
+                        <p>LKR 1,750</p>
+                    </div>
+                </div>
             </div>
-            
-            <div class="detail-row">
-                <span class="detail-label">Username:</span>
-                <span class="detail-value">${user.username}</span>
-            </div>
-            
-            <div class="detail-row">
-                <span class="detail-label">Email:</span>
-                <span class="detail-value">
-                    <c:choose>
-                        <c:when test="${not empty user.email}">
-                            ${user.email}
-                        </c:when>
-                        <c:otherwise>
-                            Not provided
-                        </c:otherwise>
-                    </c:choose>
-                </span>
-            </div>
-            
-            <div class="detail-row">
-                <span class="detail-label">Role:</span>
-                <span class="detail-value">${user.role}</span>
-            </div>
-            
-            <div class="detail-row">
-                <span class="detail-label">Account Status:</span>
-                <span class="detail-value">
-                    <c:choose>
-                        <c:when test="${user.active}">
-                            <span class="status-active">✅ Active</span>
-                        </c:when>
-                        <c:otherwise>
-                            <span class="status-inactive">❌ Inactive</span>
-                        </c:otherwise>
-                    </c:choose>
-                </span>
-            </div>
-            
-            <div class="detail-row">
-                <span class="detail-label">User ID:</span>
-                <span class="detail-value">#${user.userId}</span>
-            </div>
-        </div>
-
-        <!-- Actions -->
-        <div class="actions">
-            <h3 style="margin-bottom: 1rem; color: #333;">Quick Actions</h3>
-            
-            <a href="#" class="action-btn">📝 Update Profile</a>
-            <a href="#" class="action-btn">🔒 Change Password</a>
-            <a href="#" class="action-btn secondary">⚙️ Settings</a>
-            <a href="${pageContext.request.contextPath}/logout" class="action-btn secondary">🚪 Logout</a>
-        </div>
+        </section>
     </main>
+
+    <footer>
+        <p>&copy; 2025 Pahana Edu Bookstore | All rights reserved | Version 2.0</p>
+    </footer>
 </body>
 </html>
