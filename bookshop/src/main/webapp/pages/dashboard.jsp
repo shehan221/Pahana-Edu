@@ -182,9 +182,9 @@
 <body>
     <!-- Header with Clickable Logo -->
     <header class="header" style="display: flex; justify-content: space-between; align-items: center;">
-    <a href="dashboard.jsp" class="logo" style="text-decoration: none; font-size: 20px; color: #111;">
-        <i class="fas fa-book-reader"></i> Pahana Edu
-    </a>
+    <a href="${pageContext.request.contextPath}/pages/adminLogin.jsp" class="logo" style="text-decoration: none; font-size: 20px; color: #111;">
+    <i class="fas fa-book-reader"></i> Pahana Edu
+</a>
     <div class="user-info">
         <a href="${pageContext.request.contextPath}/pages/profile.jsp" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: #374151;">
             <img src="${pageContext.request.contextPath}/images/dashboard/profile.png" alt="User Icon" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">

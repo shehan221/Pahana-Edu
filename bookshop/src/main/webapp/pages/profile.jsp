@@ -134,7 +134,8 @@
         <div class="profile-right">
             <h2>Welcome, ${user.fullName}</h2>
 
-            <div class="info"><span class="label">Username:</span> ${user.username}</div>
+            <div class="info"><span class="label">UserName:</span> ${user.username}</div>
+            <div class="info"><span class="label">FullName:</span> ${user.username} ${user.fullName}</div>
             <div class="info"><span class="label">Email:</span> ${user.email}</div>
             <div class="info"><span class="label">Role:</span> ${user.role}</div>
             <div class="info"><span class="label">Status:</span>
