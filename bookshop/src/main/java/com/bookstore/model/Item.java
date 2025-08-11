@@ -1,37 +1,30 @@
 package com.bookstore.model;
 
-public class Item {
+import java.io.Serializable;
+import java.math.BigDecimal;
+
+public class Item implements Serializable {
+    private static final long serialVersionUID = 1L;
     
     private int itemId;
     private String itemCode;
     private String title;
     private String author;
     private String category;
-    private double price;
+    private BigDecimal price;
     private int quantity;
     private String description;
     private String publisher;
-    private String isbn;
+    private String imageUrl;
     private boolean isActive;
     
     // Default constructor
-    public Item() {
-    }
+    public Item() {}
     
-    // Constructor with essential parameters
-    public Item(String itemCode, String title, String author, String category, double price, int quantity) {
-        this.itemCode = itemCode;
-        this.title = title;
-        this.author = author;
-        this.category = category;
-        this.price = price;
-        this.quantity = quantity;
-        this.isActive = true;
-    }
-    
-    // Constructor with all parameters
-    public Item(int itemId, String itemCode, String title, String author, String category, 
-               double price, int quantity, String description, String publisher, String isbn, boolean isActive) {
+    // Constructor with all fields
+    public Item(int itemId, String itemCode, String title, String author, String category,
+                BigDecimal price, int quantity, String description, String publisher,
+                String imageUrl, boolean isActive) {
         this.itemId = itemId;
         this.itemCode = itemCode;
         this.title = title;
@@ -41,7 +34,23 @@ public class Item {
         this.quantity = quantity;
         this.description = description;
         this.publisher = publisher;
-        this.isbn = isbn;
+        this.imageUrl = imageUrl;
+        this.isActive = isActive;
+    }
+    
+    // Constructor without itemId (for new items)
+    public Item(String itemCode, String title, String author, String category,
+                BigDecimal price, int quantity, String description, String publisher,
+                String imageUrl, boolean isActive) {
+        this.itemCode = itemCode;
+        this.title = title;
+        this.author = author;
+        this.category = category;
+        this.price = price;
+        this.quantity = quantity;
+        this.description = description;
+        this.publisher = publisher;
+        this.imageUrl = imageUrl;
         this.isActive = isActive;
     }
     
@@ -86,11 +95,11 @@ public class Item {
         this.category = category;
     }
     
-    public double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
     
-    public void setPrice(double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
     
@@ -118,12 +127,12 @@ public class Item {
         this.publisher = publisher;
     }
     
-    public String getIsbn() {
-        return isbn;
+    public String getImageUrl() {
+        return imageUrl;
     }
     
-    public void setIsbn(String isbn) {
-        this.isbn = isbn;
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
     
     public boolean isActive() {
@@ -134,26 +143,6 @@ public class Item {
         this.isActive = isActive;
     }
     
-    // Business methods
-    public boolean isInStock() {
-        return quantity > 0;
-    }
-    
-    public void reduceQuantity(int amount) {
-        if (quantity >= amount) {
-            this.quantity -= amount;
-        }
-    }
-    
-    public void addQuantity(int amount) {
-        this.quantity += amount;
-    }
-    
-    public double getTotalValue() {
-        return price * quantity;
-    }
-    
-    // toString method for debugging
     @Override
     public String toString() {
         return "Item{" +
@@ -166,23 +155,8 @@ public class Item {
                 ", quantity=" + quantity +
                 ", description='" + description + '\'' +
                 ", publisher='" + publisher + '\'' +
-                ", isbn='" + isbn + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
                 ", isActive=" + isActive +
                 '}';
-    }
-    
-    // equals method for comparison
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
-        Item item = (Item) obj;
-        return itemId == item.itemId;
-    }
-    
-    // hashCode method
-    @Override
-    public int hashCode() {
-        return Integer.hashCode(itemId);
     }
 }

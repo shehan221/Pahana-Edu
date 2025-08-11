@@ -1,5 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -48,31 +50,41 @@
             color: #374151;
         }
 
+        .admin-badge {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 10px;
+            margin-left: 8px;
+            font-weight: 600;
+        }
+
         /* Navigation Bar */
-    .navbar {
-    background-color: #f2f2f2; /* Light gray background */
-    padding: 12px 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Subtle shadow */
-}
+        .navbar {
+            background-color: #f2f2f2; /* Light gray background */
+            padding: 12px 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Subtle shadow */
+        }
 
-.nav-links {
-    display: flex;
-    justify-content: center;
-    gap: 30px;
-}
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+        }
 
-.nav-links a {
-    text-decoration: none;
-    color: #333; /* Dark gray text */
-    font-size: 16px;
-    font-weight: 500;
-    transition: color 0.3s ease, transform 0.3s ease;
-}
+        .nav-links a {
+            text-decoration: none;
+            color: #333; /* Dark gray text */
+            font-size: 16px;
+            font-weight: 500;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
 
-.nav-links a:hover {
-    color: #007bff; /* Smooth blue on hover */
-    transform: translateY(-2px); /* Lift effect */
-}
+        .nav-links a:hover {
+            color: #007bff; /* Smooth blue on hover */
+            transform: translateY(-2px); /* Lift effect */
+        }
 
         .main {
             max-width: 1200px;
@@ -80,14 +92,14 @@
             padding: 0 2rem;
         }
 
-       .hero {
-    margin-top: 2rem; /* Add this line */
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    align-items: center;
-    margin-bottom: 4rem;
-}
+        .hero {
+            margin-top: 2rem; /* Add this line */
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: center;
+            margin-bottom: 4rem;
+        }
 
         .hero img {
             width: 100%;
@@ -177,45 +189,106 @@
             color: #d1d5db;
             margin-top: 4rem;
         }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .main {
+                padding: 0 1rem;
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- Header with Clickable Logo -->
-    <header class="header" style="display: flex; justify-content: space-between; align-items: center;">
-    <a href="${pageContext.request.contextPath}/pages/adminLogin.jsp" class="logo" style="text-decoration: none; font-size: 20px; color: #111;">
-    <i class="fas fa-book-reader"></i> Pahana Edu
-</a>
+    <!-- Header with Role-Based Logic -->
+   <c:choose>
+    <c:when test="${fn:toLowerCase(sessionScope.user.role) == 'admin'}">
+        <c:set var="userPageUrl" value="${pageContext.request.contextPath}/pages/profile.jsp" />
+    </c:when>
+    <c:otherwise>
+        <c:set var="userPageUrl" value="${pageContext.request.contextPath}/pages/profile.jsp" />
+    </c:otherwise>
+</c:choose>
+
+<header class="header">
+    <c:choose>
+        <c:when test="${fn:toLowerCase(sessionScope.user.role) == 'admin'}">
+            <a href="<c:url value='/pages/adminDashboard.jsp' />" class="logo">
+                <i class="fas fa-user-shield"></i> Pahana Edu Admin
+            </a>
+        </c:when>
+        <c:otherwise>
+            <a href="<c:url value='/pages/dashboard.jsp' />" class="logo">
+                <i class="fas fa-book-reader"></i> Pahana Edu
+            </a>
+        </c:otherwise>
+    </c:choose>
+
     <div class="user-info">
-        <a href="${pageContext.request.contextPath}/pages/profile.jsp" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: #374151;">
-            <img src="${pageContext.request.contextPath}/images/dashboard/profile.png" alt="User Icon" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
-            <span style="font-weight: 500; font-size: 14px; line-height: 1;"> 
+        <a href="${userPageUrl}" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: #374151;">
+            <img src="<c:url value='/images/dashboard/profile.png' />" alt="User Icon" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
+            <span style="font-weight: 500; font-size: 14px; line-height: 1;">
                 <c:out value="${sessionScope.user.username}" default="Guest" />
+                <c:if test="${fn:toLowerCase(sessionScope.user.role) == 'admin'}">
+                    <span class="admin-badge">
+                        <i class="fas fa-shield-alt"></i> ADMIN
+                    </span>
+                </c:if>
             </span>
         </a>
     </div>
 </header>
+
+
     <!-- Navigation Bar -->
-   <nav class="navbar">
-    <div class="nav-links">
-        <a href="#">Home</a>
-        <a href="#">Books</a>
-        <a href="#">About</a>
-        <a href="#">Contact</a>
-    </div>
-</nav>
+    <nav class="navbar">
+        <div class="nav-links">
+            <a href="${pageContext.request.contextPath}/dashboard">Home</a>
+            <a href="#books-section">Books</a>
+            <a href="#">About</a>
+            <a href="feedback.jsp">feedback</a>
+            <!-- Admin-specific navigation -->
+            <c:if test="${sessionScope.user.role == 'admin'}">
+                <a href="${pageContext.request.contextPath}/admindashboard.jsp" style="color: #f59e0b; font-weight: 600;">
+                    <i class="fas fa-cogs"></i> Admin Panel
+                </a>
+            </c:if>
+        </div>
+    </nav>
+
     <!-- Main Content -->
     <main class="main">
         <!-- Hero Section -->
         <section class="hero">
             <div>
                 <h1>Explore Knowledge with Pahana Edu</h1>
-                <p>Serving the heart of Colombo with quality books, smart billing, and modern inventory systems. Discover what makes us Sri Lanka’s trusted bookshop since 1995.</p>
+                <p>Serving the heart of Colombo with quality books, smart billing, and modern inventory systems. Discover what makes us Sri Lanka's trusted bookshop since 1995.</p>
+                
+                <!-- Role-specific welcome message -->
+                <c:if test="${sessionScope.user.role == 'admin'}">
+                    <div style="margin-top: 1.5rem; padding: 1rem; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 6px;">
+                        <p style="color: #92400e; font-weight: 600; margin: 0;">
+                            <i class="fas fa-crown"></i> Welcome Administrator! 
+                            <a href="${pageContext.request.contextPath}/admindashboard.jsp" style="color: #92400e; text-decoration: underline;">
+                                Access Admin Dashboard
+                            </a>
+                        </p>
+                    </div>
+                </c:if>
             </div>
             <img src="<c:url value='/images/dashboard/bookshop.png' />" alt="Bookstore Image">
         </section>
 
         <!-- Books Section -->
-        <section class="books-section">
+        <section class="books-section" id="books-section">
             <h2>Popular Books</h2>
             <div class="book-grid">
                 <div class="book-card">
@@ -253,5 +326,25 @@
     <footer>
         <p>&copy; 2025 Pahana Edu Bookstore | All rights reserved | Version 2.0</p>
     </footer>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Console log for debugging
+        console.log('Dashboard loaded for user:', '${sessionScope.user.username}');
+        console.log('User role:', '${sessionScope.user.role}');
+    </script>
 </body>
 </html>
