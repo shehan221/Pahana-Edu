@@ -80,7 +80,7 @@
         <a href="Items CRUD.jsp">📚 Manage Books</a>
     </div>
     <div class="dashboard-option">
-        <a href="viewFeedback.jsp">💬 View Feedback</a>
+        <a href="viewFeedbacks.jsp">💬 View Feedback</a>
     </div>
     <div class="dashboard-option">
         <a href="customers">👥 Edit Customers</a>
