@@ -3,54 +3,7 @@
 <html>
 <head>
     <title>View Feedbacks</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f6f9;
-            padding: 40px;
-        }
-
-        h2 {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #333;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
-        }
-
-        th, td {
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            text-align: left;
-            font-size: 14px;
-        }
-
-        th {
-            background-color: #4CAF50;
-            color: white;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-        .error {
-            background-color: #fdecea;
-            color: #c62828;
-            border: 1px solid #f44336;
-            padding: 10px 15px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-    </style>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/viewFeedback.css">
 </head>
 <body>
 

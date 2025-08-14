@@ -1,0 +1,121 @@
+
+    /* Reset & base styles */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #f4f6f9;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        padding: 40px 20px;
+    }
+
+    h2 {
+        color: #333;
+        margin-bottom: 30px;
+        font-size: 28px;
+        text-align: center;
+    }
+
+    form {
+        background: #ffffff;
+        padding: 30px 35px;
+        border-radius: 10px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        width: 100%;
+        max-width: 500px;
+    }
+
+    label {
+        font-weight: 600;
+        color: #333;
+        display: block;
+        margin-bottom: 8px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    textarea,
+    select {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        font-size: 15px;
+        transition: border-color 0.3s;
+        background-color: #fefefe;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+        border-color: #4CAF50;
+        outline: none;
+    }
+
+    textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    input[type="submit"] {
+        background-color: #4CAF50;
+        color: #fff;
+        padding: 12px 25px;
+        font-size: 16px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    input[type="submit"]:hover {
+        background-color: #45a049;
+    }
+
+    /* Message box styles */
+    .message {
+        margin-top: 20px;
+        padding: 15px 20px;
+        border-radius: 6px;
+        font-size: 15px;
+        font-weight: 500;
+        width: 100%;
+        max-width: 500px;
+        text-align: center;
+    }
+
+    .success {
+        background-color: #e6f9ed;
+        color: #2e7d32;
+        border: 1px solid #a5d6a7;
+    }
+
+    .error {
+        background-color: #fdecea;
+        color: #c62828;
+        border: 1px solid #f44336;
+    }
+
+    /* Responsive layout */
+    @media (max-width: 600px) {
+        form {
+            padding: 25px 20px;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+        }
+
+        .message {
+            font-size: 14px;
+        }
+    }
