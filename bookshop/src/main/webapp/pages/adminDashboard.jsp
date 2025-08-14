@@ -1,91 +1,250 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Admin Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Pahana Edu</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f6f9;
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
-        header {
-            background-color: #34495e;
-            color: white;
-            padding: 10px 20px;
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: #f9fafb; 
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        header h1 {
-            margin: 0;
-            font-size: 22px;
+
+        .header .logo { 
+            font-family: 'Playfair Display', serif; 
+            font-size: 1.8rem; 
+            font-weight: 700; 
+            color: #059669; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            text-decoration: none;
         }
+
         .header-buttons {
             display: flex;
-            gap: 10px;
+            gap: 12px;
         }
+
         .header-buttons a {
-            background-color: #2ecc71;
-            color: white;
-            padding: 8px 15px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-size: 14px;
-        }
-        .header-buttons a.logout {
-            background-color: #e74c3c;
-        }
-        main {
             display: flex;
-            flex-direction: column;
             align-items: center;
-            margin-top: 50px;
-        }
-        .dashboard-option {
-            background-color: white;
-            padding: 20px;
-            margin: 15px;
-            border-radius: 8px;
-            width: 250px;
-            text-align: center;
-            box-shadow: 0px 4px 6px rgba(0,0,0,0.1);
-            transition: 0.3s;
-        }
-        .dashboard-option:hover {
-            background-color: #ecf0f1;
-            transform: scale(1.05);
-        }
-        .dashboard-option a {
+            gap: 8px;
             text-decoration: none;
-            color: #34495e;
-            font-weight: bold;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .header-buttons .profile-btn {
+            background: #059669;
+            color: white;
+        }
+
+        .header-buttons .logout-btn {
+            background: #ef4444;
+            color: white;
+        }
+
+        .header-buttons a:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Main */
+        .main {
+            max-width: 900px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+
+        .welcome {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .welcome h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+
+        .welcome p {
+            color: #6b7280;
+            font-size: 1.1rem;
+        }
+
+        /* Dashboard Options */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .dashboard-option {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid #f1f5f9;
+        }
+
+        .dashboard-option:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .dashboard-option .icon {
+            font-size: 3rem;
+            color: #059669;
+            margin-bottom: 1rem;
+        }
+
+        .dashboard-option h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            color: #1f2937;
+            margin-bottom: 1.5rem;
+        }
+
+        .dashboard-option a {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-option a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(5, 150, 105, 0.4);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            color: #d1d5db;
+            margin-top: 5rem;
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .main {
+                padding: 0 1rem;
+                margin: 2rem auto;
+            }
+
+            .header {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .welcome h1 {
+                font-size: 2rem;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
         }
     </style>
 </head>
 <body>
 
-<header>
-    <h1>Admin Dashboard</h1>
-    <div class="header-buttons">
-        <a href="profile.jsp">Profile</a>
-        <a href="logout" class="logout">Logout</a>
-    </div>
-</header>
+    <header class="header">
+        <a href="<c:url value='/pages/adminDashboard.jsp' />" class="logo">
+            <i class="fas fa-user-shield"></i> Pahana Edu Admin
+        </a>
 
-<main>
-    <div class="dashboard-option">
-        <a href="Items CRUD.jsp">📚 Manage Books</a>
-    </div>
-    <div class="dashboard-option">
-        <a href="viewFeedbacks.jsp">💬 View Feedback</a>
-    </div>
-    <div class="dashboard-option">
-        <a href="customers">👥 Edit Customers</a>
-    </div>
-</main>
+        <div class="header-buttons">
+            <a href="<c:url value='/pages/profile.jsp' />" class="profile-btn">
+                <i class="fas fa-user"></i> Profile
+            </a>
+            <a href="<c:url value='/pages/login.jsp' />" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="welcome">
+            <h1><i class="fas fa-crown"></i> Admin Dashboard</h1>
+            <p>Manage your bookstore with these essential tools</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="dashboard-option">
+                <div class="icon">
+                    <i class="fas fa-book"></i>
+                </div>
+                <h3>Manage Books</h3>
+                <a href="<c:url value='/pages/Items CRUD.jsp' />">
+                    <i class="fas fa-edit"></i> Go to Books
+                </a>
+            </div>
+
+            <div class="dashboard-option">
+                <div class="icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <h3>View Feedback</h3>
+                <a href="<c:url value='/pages/viewFeedbacks.jsp' />">
+                    <i class="fas fa-eye"></i> View Feedback
+                </a>
+            </div>
+
+            <div class="dashboard-option">
+                <div class="icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <h3>Order History</h3>
+                <a href="<c:url value='/pages/orderHistory.jsp' />">
+                    <i class="fas fa-list"></i> View Orders
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Pahana Edu Bookstore | Admin Panel</p>
+    </footer>
 
 </body>
 </html>

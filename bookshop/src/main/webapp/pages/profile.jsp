@@ -5,20 +5,7 @@
 <%@ page import="java.security.NoSuchAlgorithmException" %>
 
 <%!
-    // Password hashing method
-    public String hashPassword(String password) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] hashedBytes = md.digest(password.getBytes());
-            StringBuilder sb = new StringBuilder();
-            for (byte b : hashedBytes) {
-                sb.append(String.format("%02x", b));
-            }
-            return sb.toString();
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Error hashing password", e);
-        }
-    }
+    // No password hashing - storing plain text passwords
 %>
 
 <%
@@ -26,7 +13,16 @@
     String action = request.getParameter("action");
     if ("logout".equals(action)) {
         session.invalidate();
-        response.sendRedirect(request.getContextPath() + "/login.jsp");
+        // Try different redirect options
+        String redirectUrl = request.getContextPath() + "/pages/login.jsp";
+        
+        // Check if login.jsp exists, otherwise redirect to a safe page
+        try {
+            response.sendRedirect(redirectUrl);
+        } catch (Exception e) {
+            // If login.jsp doesn't exist, redirect to home or show logout message
+            out.println("<script>alert('Logged out successfully!'); window.location.href='" + request.getContextPath() + "/';</script>");
+        }
         return;
     }
     
@@ -43,10 +39,17 @@
         String email = request.getParameter("email");
         String newPassword = request.getParameter("newPassword");
         
-        // Database configuration - UPDATE THESE
-        String DB_URL = "jdbc:mysql://localhost:3306/bookstore_db";
+        // Database configuration - CHANGE THESE TO YOUR ACTUAL SETTINGS
+        String DB_URL = "jdbc:mysql://localhost:3306/bookstore_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
         String DB_USER = "root";
-        String DB_PASS = "your_password";
+        String DB_PASS = "123456"; // Change this: empty for XAMPP, "root" for some installations, or your actual password
+        
+        // Alternative URLs to try if the above doesn't work
+        String[] alternativeUrls = {
+            "jdbc:mysql://127.0.0.1:3306/bookstore_db?useSSL=false",
+            "jdbc:mysql://localhost:3306/bookstore_db",
+            "jdbc:mysql://127.0.0.1:3306/bookstore_db"
+        };
         
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -54,7 +57,29 @@
         
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
+            
+            // Try main URL first
+            try {
+                conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
+                System.out.println("Connected successfully with main URL");
+            } catch (SQLException e) {
+                System.out.println("Main URL failed: " + e.getMessage());
+                
+                // Try alternative URLs
+                for (String altUrl : alternativeUrls) {
+                    try {
+                        conn = DriverManager.getConnection(altUrl, DB_USER, DB_PASS);
+                        System.out.println("Connected successfully with: " + altUrl);
+                        break;
+                    } catch (SQLException e2) {
+                        System.out.println("Failed: " + altUrl + " - " + e2.getMessage());
+                    }
+                }
+                
+                if (conn == null) {
+                    throw new SQLException("Could not connect to database with any URL. Check if MySQL is running and credentials are correct.");
+                }
+            }
             
             // Get username from session
             String username = "";
@@ -122,8 +147,8 @@
                                 
                                 int paramIndex = 3;
                                 if (newPassword != null && !newPassword.trim().isEmpty()) {
-                                    String hashedNewPassword = hashPassword(newPassword);
-                                    pstmt.setString(paramIndex++, hashedNewPassword);
+                                    // Store password as plain text (no hashing)
+                                    pstmt.setString(paramIndex++, newPassword.trim());
                                 }
                                 pstmt.setInt(paramIndex, userId);
                                 
@@ -152,10 +177,21 @@
                 } else {
                     request.setAttribute("errorMessage", "User not found. Please login again.");
                 }
+            } else {
+                request.setAttribute("errorMessage", "Unable to identify user. Please login again.");
             }
             
+        } catch (ClassNotFoundException e) {
+            request.setAttribute("errorMessage", "Database driver not found. Please ensure MySQL JDBC driver is installed.");
+            System.err.println("MySQL Driver error: " + e.getMessage());
+            e.printStackTrace();
+        } catch (SQLException e) {
+            request.setAttribute("errorMessage", "Database connection failed: " + e.getMessage() + ". Please check if MySQL is running.");
+            System.err.println("Database connection error: " + e.getMessage());
+            e.printStackTrace();
         } catch (Exception e) {
-            request.setAttribute("errorMessage", "An error occurred while updating profile.");
+            request.setAttribute("errorMessage", "An error occurred while updating profile: " + e.getMessage());
+            System.err.println("General error: " + e.getMessage());
             e.printStackTrace();
         } finally {
             try {
@@ -326,6 +362,17 @@
             background-color: #f8d7da;
             color: #721c24;
             border-left: 4px solid #dc3545;
+        }
+
+        /* Database Status Info */
+        .db-status {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-size: 12px;
+            font-family: monospace;
         }
 
         /* Edit Profile Modal */
@@ -570,6 +617,11 @@
             </div>
         </c:if>
 
+        <!-- Database troubleshooting info - remove after fixing -->
+        <div class="db-status" style="display: none;" id="dbInfo">
+            🔧 DB Troubleshooting: Check Tomcat console for connection attempts
+        </div>
+
         <div class="profile-left">
             <div class="profile-avatar">
                 👤
@@ -666,14 +718,60 @@
         <div class="logout-body">
             <p>Are you sure you want to logout?</p>
             <div class="logout-buttons">
-                <button onclick="confirmLogout()" class="btn-confirm">Yes, Logout</button>
-                <button onclick="closeLogoutModal()" class="btn-cancel">Cancel</button>
+                <button onclick="confirmLogout()" class="btn-confirm" id="logoutConfirmBtn">Yes, Logout</button>
+                <button onclick="closeLogoutModal()" class="btn-cancel" id="logoutCancelBtn">Cancel</button>
+            </div>
+            
+            <!-- Alternative logout options if redirect fails -->
+            <div style="margin-top: 15px; display: none;" id="alternativeLogout">
+                <p style="font-size: 12px; color: #666;">If logout doesn't work, try:</p>
+                <button onclick="forceLogout()" class="btn-confirm" style="font-size: 12px; padding: 5px 10px;">Force Logout</button>
+                <button onclick="clearSession()" class="btn-cancel" style="font-size: 12px; padding: 5px 10px;">Clear Session</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
+    // Show debug info if there are database issues
+    if (window.location.search.includes('action=updateProfile')) {
+        document.getElementById('dbInfo').style.display = 'block';
+    }
+
+    // Additional logout functions
+    function forceLogout() {
+        // Try multiple logout methods
+        document.cookie.split(";").forEach(function(c) { 
+            document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+        });
+        
+        // Clear session storage and local storage
+        if (typeof(Storage) !== "undefined") {
+            sessionStorage.clear();
+            localStorage.clear();
+        }
+        
+        // Force redirect to login or home
+        window.location.replace('/');
+    }
+    
+    function clearSession() {
+        // Clear browser session and redirect
+        if (typeof(Storage) !== "undefined") {
+            sessionStorage.clear();
+        }
+        alert('Session cleared. Please navigate to login page manually.');
+        closeLogoutModal();
+    }
+    
+    // Check if logout failed and show alternative options
+    setTimeout(function() {
+        if (window.location.search.includes('action=logout')) {
+            // If we're still on this page after logout attempt, show alternatives
+            document.getElementById('alternativeLogout').style.display = 'block';
+        }
+    }, 2000);
+
     // Edit Profile Modal Functions
     function openEditModal() {
         document.getElementById('editModal').style.display = 'block';
@@ -697,7 +795,23 @@
     }
 
     function confirmLogout() {
-        window.location.href = '?action=logout';
+        // Show loading message
+        document.querySelector('.logout-body p').innerHTML = 'Logging out...';
+        
+        // Disable buttons
+        document.querySelector('.btn-confirm').disabled = true;
+        document.querySelector('.btn-cancel').disabled = true;
+        
+        // Multiple logout strategies
+        try {
+            // Method 1: Try normal redirect
+            window.location.href = '?action=logout';
+        } catch (e) {
+            // Method 2: Force page reload with logout action
+            setTimeout(function() {
+                window.location.replace(window.location.pathname + '?action=logout');
+            }, 100);
+        }
     }
 
     // Form validation
