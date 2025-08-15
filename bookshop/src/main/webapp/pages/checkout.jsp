@@ -151,8 +151,7 @@ if ("POST".equals(request.getMethod()) && "processOrder".equals(request.getParam
         StringBuilder quantities = new StringBuilder();
         StringBuilder prices = new StringBuilder();
         double totalAmount = 0.0;
-        double taxRate = 0.08; // 8% tax
-        double deliveryFee = 250.0; // Fixed delivery fee
+        // REMOVED TAX AND DELIVERY FEE
         
         System.out.println("Processing " + cart.size() + " cart items...");
         
@@ -209,14 +208,11 @@ if ("POST".equals(request.getMethod()) && "processOrder".equals(request.getParam
             totalAmount += price * quantity;
         }
         
-        // Calculate final totals
-        double taxAmount = totalAmount * taxRate;
-        double finalTotal = totalAmount + taxAmount + deliveryFee;
+        // Calculate final totals - NO TAX, NO DELIVERY FEE
+        double finalTotal = totalAmount;
         
-        System.out.println("=== ORDER TOTALS ===");
+        System.out.println("=== ORDER TOTALS (NO TAX, NO DELIVERY) ===");
         System.out.println("Subtotal: " + totalAmount);
-        System.out.println("Tax: " + taxAmount);
-        System.out.println("Delivery: " + deliveryFee);
         System.out.println("Final Total: " + finalTotal);
         
         // Database insertion
@@ -353,10 +349,8 @@ if ("POST".equals(request.getMethod()) && "processOrder".equals(request.getParam
     System.out.println("Success message: " + successMessage);
 }
 
-// Calculate cart totals for display
+// Calculate cart totals for display - NO TAX, NO DELIVERY FEE
 double cartTotal = 0.0;
-double taxRate = 0.08;
-double deliveryFee = 250.0;
 int cartItemCount = 0;
 
 java.util.List<java.util.Map<String, Object>> cart = 
@@ -395,13 +389,11 @@ if (cart != null) {
     }
 }
 
-double taxAmount = cartTotal * taxRate;
-double finalTotal = cartTotal + taxAmount + deliveryFee;
+// Final total calculation - NO TAX, NO DELIVERY FEE
+double finalTotal = cartTotal;
 
-// Set page context attributes
+// Set page context attributes - REMOVED taxAmount and deliveryFee
 pageContext.setAttribute("cartTotal", cartTotal);
-pageContext.setAttribute("taxAmount", taxAmount);
-pageContext.setAttribute("deliveryFee", deliveryFee);
 pageContext.setAttribute("finalTotal", finalTotal);
 pageContext.setAttribute("cartItemCount", cartItemCount);
 pageContext.setAttribute("orderProcessed", orderProcessed);
@@ -441,6 +433,7 @@ System.out.println("=== CHECKOUT DEBUG END ===");
         <div class="debug-item">Cart Items: ${cartItemCount}</div>
         <div class="debug-item">Cart Total: LKR <fmt:formatNumber value="${cartTotal}" pattern="#,##0.00" /></div>
         <div class="debug-item">Order Processed: ${orderProcessed}</div>
+        <div class="debug-item debug-warning">Tax and delivery fee removed - showing book prices only</div>
         <c:if test="${not empty errorMessage}">
             <div class="debug-item debug-error">Error: ${errorMessage}</div>
         </c:if>
@@ -498,16 +491,13 @@ System.out.println("=== CHECKOUT DEBUG END ===");
                             <i class="fas fa-check-circle"></i>
                         </div>
                         <h2>Order Successfully Placed!</h2>
-                        <p>Your order has been confirmed and saved to our database.</p>
+                        <p>Your order has been confirmed.</p>
                         
                         <div class="order-details">
                             <h3 style="color: #059669; margin-bottom: 1rem;">
                                 <i class="fas fa-receipt"></i> Order Details
                             </h3>
-                            <div class="info-row">
-                                <span>Order Number:</span>
-                                <span><strong>${orderNumber}</strong></span>
-                            </div>
+                            
                             <div class="info-row">
                                 <span>Order Date:</span>
                                 <span><fmt:formatDate value="${orderDate}" pattern="dd/MM/yyyy HH:mm:ss" /></span>
@@ -516,18 +506,11 @@ System.out.println("=== CHECKOUT DEBUG END ===");
                                 <span>Customer:</span>
                                 <span>${username}</span>
                             </div>
-                            <div class="info-row">
-                                <span>Total Amount:</span>
-                                <span style="color: #059669; font-weight: 700;">
-                                    LKR <fmt:formatNumber value="${finalTotal}" pattern="#,##0.00" />
-                                </span>
-                            </div>
+                            
                         </div>
                         
                         <div class="checkout-actions">
-                            <button onclick="window.print()" class="btn btn-secondary">
-                                <i class="fas fa-print"></i> Print Receipt
-                            </button>
+                           
                             <a href="<c:url value='/pages/dashboard.jsp' />" class="btn btn-primary">
                                 <i class="fas fa-home"></i> Continue Shopping
                             </a>
@@ -607,25 +590,13 @@ System.out.println("=== CHECKOUT DEBUG END ===");
                             </c:forEach>
                         </div>
 
-                        <!-- Bill Summary -->
+                        <!-- Bill Summary - REMOVED TAX AND DELIVERY FEE -->
                         <div class="bill-summary">
                             <h3 style="margin-bottom: 1rem; color: #1f2937;">
                                 <i class="fas fa-calculator"></i> Bill Summary
                             </h3>
-                            <div class="bill-row">
-                                <span>Subtotal (${cartItemCount} items):</span>
-                                <span><strong>LKR <fmt:formatNumber value="${cartTotal}" pattern="#,##0.00" /></strong></span>
-                            </div>
-                            <div class="bill-row">
-                                <span>Tax (8%):</span>
-                                <span><strong>LKR <fmt:formatNumber value="${taxAmount}" pattern="#,##0.00" /></strong></span>
-                            </div>
-                            <div class="bill-row">
-                                <span>Delivery Fee:</span>
-                                <span><strong>LKR <fmt:formatNumber value="${deliveryFee}" pattern="#,##0.00" /></strong></span>
-                            </div>
                             <div class="bill-row total">
-                                <span>Total Amount:</span>
+                                <span>Total Amount (${cartItemCount} items):</span>
                                 <span style="color: #059669; font-size: 1.3rem;">
                                     <strong>LKR <fmt:formatNumber value="${finalTotal}" pattern="#,##0.00" /></strong>
                                 </span>
@@ -671,7 +642,7 @@ System.out.println("=== CHECKOUT DEBUG END ===");
                     const confirmed = confirm(
                         'Confirm Order Placement\n\n' +
                         'Customer: ${username}\n' +
-                        'Total Amount: LKR <fmt:formatNumber value="${finalTotal}" pattern="#,##0.00" />\n' +
+                        'Total Amount: LKR <fmt:formatNumber value="${finalTotal}" pattern="#,##0.00" /> (Books Only)\n' +
                         'Items: ${cartItemCount}\n\n' +
                         'Are you sure you want to place this order?'
                     );
@@ -712,15 +683,16 @@ System.out.println("=== CHECKOUT DEBUG END ===");
         });
 
         // Console logging for debugging
-        console.log('=== CHECKOUT PAGE DEBUG ===');
+        console.log('=== CHECKOUT PAGE DEBUG (BOOKS ONLY) ===');
         console.log('User ID: ${userId}');
         console.log('Username: ${username}');
         console.log('Cart Items: ${cartItemCount}');
         console.log('Cart Total: ${cartTotal}');
-        console.log('Final Total: ${finalTotal}');
+        console.log('Final Total: ${finalTotal} (book prices only)');
         console.log('Order Processed: ${orderProcessed}');
         console.log('Error Message: ${errorMessage}');
         console.log('Success Message: ${successMessage}');
+        console.log('TAX & DELIVERY FEE REMOVED - Only book prices');
         
         <c:if test="${orderProcessed}">
         console.log('SUCCESS: Order placed successfully!');

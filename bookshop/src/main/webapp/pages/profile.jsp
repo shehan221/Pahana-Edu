@@ -1,11 +1,71 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ page import="java.sql.*" %>
 <%@ page import="java.security.MessageDigest" %>
 <%@ page import="java.security.NoSuchAlgorithmException" %>
+<%@ page import="java.util.*" %>
+<%@ page import="java.text.SimpleDateFormat" %>
 
 <%!
     // No password hashing - storing plain text passwords
+    
+    // Order class to hold order data
+    public static class Order {
+        private int orderId;
+        private String bookTitles;
+        private String quantities;
+        private String prices;
+        private double totalAmount;
+        private Timestamp orderDate;
+        
+        public Order(int orderId, String bookTitles, String quantities, String prices, double totalAmount, Timestamp orderDate) {
+            this.orderId = orderId;
+            this.bookTitles = bookTitles;
+            this.quantities = quantities;
+            this.prices = prices;
+            this.totalAmount = totalAmount;
+            this.orderDate = orderDate;
+        }
+        
+        // Getters
+        public int getOrderId() { return orderId; }
+        public String getBookTitles() { return bookTitles; }
+        public String getQuantities() { return quantities; }
+        public String getPrices() { return prices; }
+        public double getTotalAmount() { return totalAmount; }
+        public Timestamp getOrderDate() { return orderDate; }
+        
+        // Format date for display
+        public String getFormattedDate() {
+            SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy HH:mm");
+            return sdf.format(orderDate);
+        }
+        
+        // Get individual book titles as array
+        public String[] getBookTitlesArray() {
+            if (bookTitles == null || bookTitles.trim().isEmpty()) {
+                return new String[0];
+            }
+            return bookTitles.split(",");
+        }
+        
+        // Get individual quantities as array
+        public String[] getQuantitiesArray() {
+            if (quantities == null || quantities.trim().isEmpty()) {
+                return new String[0];
+            }
+            return quantities.split(",");
+        }
+        
+        // Get individual prices as array
+        public String[] getPricesArray() {
+            if (prices == null || prices.trim().isEmpty()) {
+                return new String[0];
+            }
+            return prices.split(",");
+        }
+    }
 %>
 
 <%
@@ -33,27 +93,45 @@
         return;
     }
 
+    // Database configuration - CHANGE THESE TO YOUR ACTUAL SETTINGS
+    String DB_URL = "jdbc:mysql://localhost:3306/bookstore_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
+    String DB_USER = "root";
+    String DB_PASS = "123456"; // Change this: empty for XAMPP, "root" for some installations, or your actual password
+    
+    // Alternative URLs to try if the above doesn't work
+    String[] alternativeUrls = {
+        "jdbc:mysql://127.0.0.1:3306/bookstore_db?useSSL=false",
+        "jdbc:mysql://localhost:3306/bookstore_db",
+        "jdbc:mysql://127.0.0.1:3306/bookstore_db"
+    };
+    
+    Connection conn = null;
+    PreparedStatement pstmt = null;
+    ResultSet rs = null;
+    List<Order> userOrders = new ArrayList<Order>();
+    int userId = 0;
+    String username = "";
+    
+    // Get username from session
+    try {
+        java.lang.reflect.Method getUsernameMethod = userObj.getClass().getMethod("getUsername");
+        username = (String) getUsernameMethod.invoke(userObj);
+    } catch (Exception e1) {
+        try {
+            java.lang.reflect.Field usernameField = userObj.getClass().getDeclaredField("username");
+            usernameField.setAccessible(true);
+            username = (String) usernameField.get(userObj);
+        } catch (Exception e2) {
+            username = request.getParameter("hiddenUsername");
+            if (username == null) username = "";
+        }
+    }
+
     // Handle profile update
     if ("updateProfile".equals(request.getParameter("action")) && "POST".equalsIgnoreCase(request.getMethod())) {
         String fullName = request.getParameter("fullName");
         String email = request.getParameter("email");
         String newPassword = request.getParameter("newPassword");
-        
-        // Database configuration - CHANGE THESE TO YOUR ACTUAL SETTINGS
-        String DB_URL = "jdbc:mysql://localhost:3306/bookstore_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
-        String DB_USER = "root";
-        String DB_PASS = "123456"; // Change this: empty for XAMPP, "root" for some installations, or your actual password
-        
-        // Alternative URLs to try if the above doesn't work
-        String[] alternativeUrls = {
-            "jdbc:mysql://127.0.0.1:3306/bookstore_db?useSSL=false",
-            "jdbc:mysql://localhost:3306/bookstore_db",
-            "jdbc:mysql://127.0.0.1:3306/bookstore_db"
-        };
-        
-        Connection conn = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
         
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -81,21 +159,6 @@
                 }
             }
             
-            // Get username from session
-            String username = "";
-            try {
-                java.lang.reflect.Method getUsernameMethod = userObj.getClass().getMethod("getUsername");
-                username = (String) getUsernameMethod.invoke(userObj);
-            } catch (Exception e1) {
-                try {
-                    java.lang.reflect.Field usernameField = userObj.getClass().getDeclaredField("username");
-                    usernameField.setAccessible(true);
-                    username = (String) usernameField.get(userObj);
-                } catch (Exception e2) {
-                    username = request.getParameter("hiddenUsername");
-                }
-            }
-            
             if (username != null && !username.trim().isEmpty()) {
                 // Get user_id for database operations
                 String getUserIdSql = "SELECT user_id FROM users WHERE username = ?";
@@ -103,7 +166,6 @@
                 pstmt.setString(1, username);
                 rs = pstmt.executeQuery();
                 
-                int userId = 0;
                 if (rs.next()) {
                     userId = rs.getInt("user_id");
                 }
@@ -203,6 +265,79 @@
             }
         }
     }
+    
+    // Fetch user orders
+    try {
+        if (conn == null || conn.isClosed()) {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            
+            // Try main URL first
+            try {
+                conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
+            } catch (SQLException e) {
+                // Try alternative URLs
+                for (String altUrl : alternativeUrls) {
+                    try {
+                        conn = DriverManager.getConnection(altUrl, DB_USER, DB_PASS);
+                        break;
+                    } catch (SQLException e2) {
+                        // Continue to next URL
+                    }
+                }
+            }
+        }
+        
+        if (conn != null && username != null && !username.trim().isEmpty()) {
+            // Get user_id if we don't have it yet
+            if (userId == 0) {
+                String getUserIdSql = "SELECT user_id FROM users WHERE username = ?";
+                pstmt = conn.prepareStatement(getUserIdSql);
+                pstmt.setString(1, username);
+                rs = pstmt.executeQuery();
+                
+                if (rs.next()) {
+                    userId = rs.getInt("user_id");
+                }
+                rs.close();
+                pstmt.close();
+            }
+            
+            if (userId > 0) {
+                // Fetch orders for the user
+                String ordersSql = "SELECT order_id, book_titles, quantities, prices, total_amount, order_date FROM orders WHERE user_id = ? ORDER BY order_date DESC";
+                pstmt = conn.prepareStatement(ordersSql);
+                pstmt.setInt(1, userId);
+                rs = pstmt.executeQuery();
+                
+                while (rs.next()) {
+                    Order order = new Order(
+                        rs.getInt("order_id"),
+                        rs.getString("book_titles"),
+                        rs.getString("quantities"),
+                        rs.getString("prices"),
+                        rs.getDouble("total_amount"),
+                        rs.getTimestamp("order_date")
+                    );
+                    userOrders.add(order);
+                }
+            }
+        }
+    } catch (Exception e) {
+        System.err.println("Error fetching orders: " + e.getMessage());
+        e.printStackTrace();
+    } finally {
+        try {
+            if (rs != null) rs.close();
+            if (pstmt != null) pstmt.close();
+            if (conn != null) conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    // Set orders as request attribute
+    request.setAttribute("userOrders", userOrders);
+    request.setAttribute("orderCount", userOrders.size());
 %>
 
 <!DOCTYPE html>
@@ -211,7 +346,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile</title>
-   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/profile_style.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/profile_style.css">
 </head>
 <body>
 
@@ -235,38 +370,110 @@
             🔧 DB Troubleshooting: Check Tomcat console for connection attempts
         </div>
 
-        <div class="profile-left">
-            <div class="profile-avatar">
-                👤
+        <!-- Tab Navigation -->
+        <div class="tab-buttons">
+            <button class="tab-btn active" onclick="showTab('profile-tab', this)">👤 Profile</button>
+            <button class="tab-btn" onclick="showTab('orders-tab', this)">📦 Order History</button>
+        </div>
+
+        <!-- Profile Tab -->
+        <div id="profile-tab" class="tab-content active">
+            <div class="profile-left">
+                <div class="profile-avatar">
+                    👤
+                </div>
+            </div>
+
+            <div class="profile-right">
+                <h2>Welcome, ${user.fullName}</h2>
+
+                <div class="info"><span class="label">UserName:</span> ${user.username}</div>
+                <div class="info"><span class="label">FullName:</span> ${user.fullName}</div>
+                <div class="info"><span class="label">Email:</span> ${user.email}</div>
+                <div class="info"><span class="label">Role:</span> ${user.role}</div>
+                <div class="info"><span class="label">Status:</span>
+                    <c:choose>
+                        <c:when test="${user.active}">
+                            <span class="status-active">Active</span>
+                        </c:when>
+                        <c:otherwise>
+                            <span class="status-inactive">Inactive</span>
+                        </c:otherwise>
+                    </c:choose>
+                </div>
+
+                <div class="btn-group">
+                    <button onclick="openEditModal()" class="btn btn-edit">Edit Profile</button>
+                    <button onclick="openLogoutModal()" class="btn btn-logout">Logout</button>
+                </div>
+
+                <div class="exclusive">
+                    <h3>🎉 Customer Exclusives</h3>
+                    <p>As a valued user, you get early access to discounts, free shipping on select items, and VIP previews of new arrivals.</p>
+                </div>
             </div>
         </div>
 
-        <div class="profile-right">
-            <h2>Welcome, ${user.fullName}</h2>
-
-            <div class="info"><span class="label">UserName:</span> ${user.username}</div>
-            <div class="info"><span class="label">FullName:</span> ${user.fullName}</div>
-            <div class="info"><span class="label">Email:</span> ${user.email}</div>
-            <div class="info"><span class="label">Role:</span> ${user.role}</div>
-            <div class="info"><span class="label">Status:</span>
-                <c:choose>
-                    <c:when test="${user.active}">
-                        <span class="status-active">Active</span>
-                    </c:when>
-                    <c:otherwise>
-                        <span class="status-inactive">Inactive</span>
-                    </c:otherwise>
-                </c:choose>
-            </div>
-
-            <div class="btn-group">
-                <button onclick="openEditModal()" class="btn btn-edit">Edit Profile</button>
-                <button onclick="openLogoutModal()" class="btn btn-logout">Logout</button>
-            </div>
-
-            <div class="exclusive">
-                <h3>🎉 Customer Exclusives</h3>
-                <p>As a valued user, you get early access to discounts, free shipping on select items, and VIP previews of new arrivals.</p>
+        <!-- Orders Tab -->
+        <div id="orders-tab" class="tab-content">
+            <div class="orders-section">
+                <div class="orders-header">
+                    <h3>📦 Your Order History</h3>
+                    <span>Total Orders: ${orderCount}</span>
+                </div>
+                
+                <div class="orders-content">
+                    <c:choose>
+                        <c:when test="${not empty userOrders}">
+                            <c:forEach var="order" items="${userOrders}" varStatus="status">
+                                <div class="order-item">
+                                    <div class="order-header">
+                                        <div>
+                                            <div class="order-id">Order #${order.orderId}</div>
+                                            <div class="order-date">📅 ${order.formattedDate}</div>
+                                        </div>
+                                        <div class="order-total">$${order.totalAmount}</div>
+                                    </div>
+                                    
+                                    <div class="book-details">
+                                        <%
+                                            Order currentOrder = (Order) pageContext.getAttribute("order");
+                                            if (currentOrder != null) {
+                                                String[] titles = currentOrder.getBookTitlesArray();
+                                                String[] quantities = currentOrder.getQuantitiesArray();
+                                                String[] prices = currentOrder.getPricesArray();
+                                                
+                                                int maxLength = Math.max(Math.max(titles.length, quantities.length), prices.length);
+                                                for (int i = 0; i < maxLength; i++) {
+                                                    String title = i < titles.length ? titles[i].trim() : "";
+                                                    String qty = i < quantities.length ? quantities[i].trim() : "0";
+                                                    String price = i < prices.length ? prices[i].trim() : "0.00";
+                                        %>
+                                                    <div class="book-item">
+                                                        <div class="book-title">📚 <%= title %></div>
+                                                        <div class="book-qty">Qty: <%= qty %></div>
+                                                        <div class="book-price">$<%= price %></div>
+                                                    </div>
+                                        <%
+                                                }
+                                            }
+                                        %>
+                                    </div>
+                                </div>
+                            </c:forEach>
+                        </c:when>
+                        <c:otherwise>
+                            <div class="no-orders">
+                                <i>📦</i>
+                                <h4>No Orders Yet</h4>
+                                <p>You haven't placed any orders yet. Start shopping to see your order history here!</p>
+                                <button onclick="window.location.href='${pageContext.request.contextPath}/books.jsp'" class="btn btn-edit" style="margin-top: 15px;">
+                                    🛒 Start Shopping
+                                </button>
+                            </div>
+                        </c:otherwise>
+                    </c:choose>
+                </div>
             </div>
         </div>
     </c:if>
@@ -344,6 +551,48 @@
         </div>
     </div>
 </div>
+
 <script src="${pageContext.request.contextPath}/js/profile.js"></script>
+<script>
+    // Tab switching functionality
+    function showTab(tabId, buttonElement) {
+        // Hide all tab contents
+        var tabContents = document.querySelectorAll('.tab-content');
+        for (var i = 0; i < tabContents.length; i++) {
+            tabContents[i].classList.remove('active');
+        }
+        
+        // Remove active class from all buttons
+        var tabButtons = document.querySelectorAll('.tab-btn');
+        for (var i = 0; i < tabButtons.length; i++) {
+            tabButtons[i].classList.remove('active');
+        }
+        
+        // Show selected tab and activate button
+        document.getElementById(tabId).classList.add('active');
+        buttonElement.classList.add('active');
+    }
+    
+    // Alternative method for older browsers
+    if (!document.querySelectorAll) {
+        function showTab(tabId, buttonElement) {
+            // Hide all tab contents
+            var tabContents = document.getElementsByClassName('tab-content');
+            for (var i = 0; i < tabContents.length; i++) {
+                tabContents[i].className = tabContents[i].className.replace(' active', '');
+            }
+            
+            // Remove active class from all buttons
+            var tabButtons = document.getElementsByClassName('tab-btn');
+            for (var i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].className = tabButtons[i].className.replace(' active', '');
+            }
+            
+            // Show selected tab and activate button
+            document.getElementById(tabId).className += ' active';
+            buttonElement.className += ' active';
+        }
+    }
+</script>
 </body>
 </html>

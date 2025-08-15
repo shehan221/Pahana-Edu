@@ -38,14 +38,8 @@
                     <p>Our commitment goes beyond just selling books – we're passionate about fostering a love for learning and supporting educational success at every level.</p>
                 </div>
                 <div class="hero-image">
-                    <!-- Replace this div with: <img src="images/bookstore-front.jpg" alt="Pahana Edu Book Shop Front"> -->
-                    <div class="image-placeholder">
-                        <div>
-                            <i class="fas fa-store" style="font-size: 3rem; margin-bottom: 1rem; display: block;"></i>
-                            📖 Add bookstore front image here<br>
-                            <small>(images/bookstore-front.jpg)</small>
-                        </div>
-                    </div>
+                    <img src="${pageContext.request.contextPath}/images/dashboard/bookshop.png" 
+                         alt="Pahana Edu Book Shop Front">
                 </div>
             </div>
         </div>
@@ -81,56 +75,14 @@
         <div class="container">
             <div class="story-content">
                 <div class="story-image">
-                    <!-- Replace this div with: <img src="images/founder-story.jpg" alt="Our Founder's Story"> -->
-                    <div class="image-placeholder">
-                        <div>
-                            <i class="fas fa-user-tie" style="font-size: 3rem; margin-bottom: 1rem; display: block;"></i>
-                            👨‍💼 Add founder/story image here<br>
-                            <small>(images/founder-story.jpg)</small>
-                        </div>
-                    </div>
+                    <img src="${pageContext.request.contextPath}/images/aboutUs/us2.jpg" 
+                         alt="Our Founder's Story">
                 </div>
                 <div class="story-text">
                     <h2>Our Story</h2>
                     <p>Pahana Edu Book Shop was founded in 2013 with a simple yet powerful vision: to make quality educational resources accessible to everyone. What started as a small neighborhood bookstore has grown into a trusted educational hub.</p>
                     <p>Our founder, driven by a passion for education and community service, recognized the need for a dedicated space where students, teachers, and parents could find the best educational materials under one roof.</p>
                     <p>Today, we continue to honor that original mission while embracing new technologies and educational trends to serve our community better.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Team Section -->
-    <section class="section" id="team">
-        <div class="container">
-            <h2 class="section-title">Meet Our Team</h2>
-            <div class="team-grid">
-                <div class="team-card">
-                    <div class="team-photo">
-                        <!-- Replace with: <img src="images/team-manager.jpg" alt="Store Manager"> -->
-                        <i class="fas fa-user-tie"></i>
-                    </div>
-                    <div class="team-name">Sarah Johnson</div>
-                    <div class="team-role">Store Manager</div>
-                    <div class="team-bio">With 8 years of experience in educational retail, Sarah ensures our customers find exactly what they need for their learning journey.</div>
-                </div>
-                <div class="team-card">
-                    <div class="team-photo">
-                        <!-- Replace with: <img src="images/team-coordinator.jpg" alt="Education Coordinator"> -->
-                        <i class="fas fa-graduation-cap"></i>
-                    </div>
-                    <div class="team-name">Michael Chen</div>
-                    <div class="team-role">Education Coordinator</div>
-                    <div class="team-bio">Michael works closely with schools and educators to curate our collection and provide expert recommendations.</div>
-                </div>
-                <div class="team-card">
-                    <div class="team-photo">
-                        <!-- Replace with: <img src="images/team-specialist.jpg" alt="Customer Service Specialist"> -->
-                        <i class="fas fa-headset"></i>
-                    </div>
-                    <div class="team-name">Emily Rodriguez</div>
-                    <div class="team-role">Customer Service Specialist</div>
-                    <div class="team-bio">Emily is dedicated to providing exceptional customer service and helping families find the perfect educational resources.</div>
                 </div>
             </div>
         </div>
@@ -170,99 +122,6 @@
                     <div class="value-icon"><i class="fas fa-heart"></i></div>
                     <div class="value-title">Passion for Learning</div>
                     <div class="value-description">Our love for education drives everything we do, from book selection to customer service excellence.</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Gallery Section -->
-    <section class="section" id="gallery">
-        <div class="container">
-            <h2 class="section-title">Our Store Gallery</h2>
-            <div class="gallery-grid">
-                <div class="gallery-item">
-                    <!-- Replace with: <img src="images/store-interior-1.jpg" alt="Store Interior"> -->
-                    <div class="gallery-placeholder">
-                        <div>
-                            <i class="fas fa-store" style="font-size: 2rem; margin-bottom: 0.5rem; display: block;"></i>
-                            Store Interior 1<br>
-                            <small>(images/store-interior-1.jpg)</small>
-                        </div>
-                    </div>
-                    <div class="gallery-overlay">
-                        <h3>Spacious Learning Environment</h3>
-                        <p>Our comfortable browsing areas make book shopping a pleasure</p>
-                    </div>
-                </div>
-                <div class="gallery-item">
-                    <!-- Replace with: <img src="images/book-collection.jpg" alt="Book Collection"> -->
-                    <div class="gallery-placeholder">
-                        <div>
-                            <i class="fas fa-books" style="font-size: 2rem; margin-bottom: 0.5rem; display: block;"></i>
-                            Book Collection<br>
-                            <small>(images/book-collection.jpg)</small>
-                        </div>
-                    </div>
-                    <div class="gallery-overlay">
-                        <h3>Extensive Collection</h3>
-                        <p>From textbooks to reference materials, we have it all</p>
-                    </div>
-                </div>
-                <div class="gallery-item">
-                    <!-- Replace with: <img src="images/customer-service.jpg" alt="Customer Service"> -->
-                    <div class="gallery-placeholder">
-                        <div>
-                            <i class="fas fa-handshake" style="font-size: 2rem; margin-bottom: 0.5rem; display: block;"></i>
-                            Customer Service<br>
-                            <small>(images/customer-service.jpg)</small>
-                        </div>
-                    </div>
-                    <div class="gallery-overlay">
-                        <h3>Expert Assistance</h3>
-                        <p>Our knowledgeable staff is always ready to help</p>
-                    </div>
-                </div>
-                <div class="gallery-item">
-                    <!-- Replace with: <img src="images/study-area.jpg" alt="Study Area"> -->
-                    <div class="gallery-placeholder">
-                        <div>
-                            <i class="fas fa-book-open" style="font-size: 2rem; margin-bottom: 0.5rem; display: block;"></i>
-                            Reading Area<br>
-                            <small>(images/study-area.jpg)</small>
-                        </div>
-                    </div>
-                    <div class="gallery-overlay">
-                        <h3>Quiet Study Space</h3>
-                        <p>A perfect place to preview books and study</p>
-                    </div>
-                </div>
-                <div class="gallery-item">
-                    <!-- Replace with: <img src="images/events.jpg" alt="Educational Events"> -->
-                    <div class="gallery-placeholder">
-                        <div>
-                            <i class="fas fa-calendar-alt" style="font-size: 2rem; margin-bottom: 0.5rem; display: block;"></i>
-                            Educational Events<br>
-                            <small>(images/events.jpg)</small>
-                        </div>
-                    </div>
-                    <div class="gallery-overlay">
-                        <h3>Community Events</h3>
-                        <p>Regular workshops and educational seminars</p>
-                    </div>
-                </div>
-                <div class="gallery-item">
-                    <!-- Replace with: <img src="images/digital-resources.jpg" alt="Digital Resources"> -->
-                    <div class="gallery-placeholder">
-                        <div>
-                            <i class="fas fa-laptop" style="font-size: 2rem; margin-bottom: 0.5rem; display: block;"></i>
-                            Digital Resources<br>
-                            <small>(images/digital-resources.jpg)</small>
-                        </div>
-                    </div>
-                    <div class="gallery-overlay">
-                        <h3>Digital Integration</h3>
-                        <p>Modern learning tools and e-resources available</p>
-                    </div>
                 </div>
             </div>
         </div>
