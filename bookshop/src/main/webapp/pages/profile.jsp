@@ -350,6 +350,20 @@
 </head>
 <body>
 
+<nav class="navbar">
+    <div class="nav-links">
+        <a href="${pageContext.request.contextPath}/pages/dashboard.jsp">
+            <i class="fas fa-home"></i> Home
+        </a>
+        <a href="${pageContext.request.contextPath}/pages/aboutUs.jsp">
+            <i class="fas fa-info-circle"></i> About
+        </a>
+        <a href="${pageContext.request.contextPath}/pages/feedback.jsp" class="active">
+            <i class="fas fa-comments"></i> Feedback
+        </a>
+    </div>
+</nav>
+
 <div class="container">
     <c:if test="${not empty user}">
         <!-- Display Messages -->

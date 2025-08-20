@@ -1,168 +1,262 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/sql" prefix="sql" %>
+
+<%
+// Handle Registration
+String errorMessage = "";
+String successMessage = "";
+
+if ("POST".equals(request.getMethod())) {
+    String username = request.getParameter("username");
+    String password = request.getParameter("password");
+    String confirmPassword = request.getParameter("confirmPassword");
+    String fullName = request.getParameter("fullName");
+    String email = request.getParameter("email");
+    
+    // Validation
+    if (username == null || username.trim().isEmpty()) {
+        errorMessage = "Username is required!";
+    } else if (password == null || password.trim().isEmpty()) {
+        errorMessage = "Password is required!";
+    } else if (fullName == null || fullName.trim().isEmpty()) {
+        errorMessage = "Full name is required!";
+    } else if (email == null || email.trim().isEmpty()) {
+        errorMessage = "Email is required!";
+    } else if (!password.equals(confirmPassword)) {
+        errorMessage = "Passwords do not match!";
+    } else if (password.length() < 6) {
+        errorMessage = "Password must be at least 6 characters long!";
+    } else {
+        // Check if username already exists
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            java.sql.Connection conn = java.sql.DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/bookstore_db", "root", "123456");
+            
+            // Check existing username
+            java.sql.PreparedStatement checkStmt = conn.prepareStatement(
+                "SELECT COUNT(*) FROM users WHERE username = ?");
+            checkStmt.setString(1, username);
+            java.sql.ResultSet rs = checkStmt.executeQuery();
+            rs.next();
+            
+            if (rs.getInt(1) > 0) {
+                errorMessage = "Username already exists! Please choose a different username.";
+            } else {
+                // Check existing email
+                java.sql.PreparedStatement checkEmailStmt = conn.prepareStatement(
+                    "SELECT COUNT(*) FROM users WHERE email = ?");
+                checkEmailStmt.setString(1, email);
+                java.sql.ResultSet emailRs = checkEmailStmt.executeQuery();
+                emailRs.next();
+                
+                if (emailRs.getInt(1) > 0) {
+                    errorMessage = "Email already registered! Please use a different email.";
+                } else {
+                    // Insert new user
+                    java.sql.PreparedStatement insertStmt = conn.prepareStatement(
+                        "INSERT INTO users (username, password, full_name, email, role, is_active) VALUES (?, ?, ?, ?, 'USER', TRUE)");
+                    insertStmt.setString(1, username);
+                    insertStmt.setString(2, password); 
+                    insertStmt.setString(3, fullName);
+                    insertStmt.setString(4, email);
+                    
+                    int result = insertStmt.executeUpdate();
+                    if (result > 0) {
+                        successMessage = "Registration successful! You can now login.";
+                        // Clear form fields
+                        username = "";
+                        fullName = "";
+                        email = "";
+                    } else {
+                        errorMessage = "Registration failed! Please try again.";
+                    }
+                    insertStmt.close();
+                }
+                emailRs.close();
+                checkEmailStmt.close();
+            }
+            rs.close();
+            checkStmt.close();
+            conn.close();
+            
+        } catch (Exception e) {
+            errorMessage = "Database error: " + e.getMessage();
+            e.printStackTrace();
+        }
+    }
+    
+    pageContext.setAttribute("errorMessage", errorMessage);
+    pageContext.setAttribute("successMessage", successMessage);
+    pageContext.setAttribute("username", username != null ? username : "");
+    pageContext.setAttribute("fullName", fullName != null ? fullName : "");
+    pageContext.setAttribute("email", email != null ? email : "");
+}
+%>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - Bookstore Management System</title>
+    <title>Register - Pahana Edu</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
-   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/register_style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/register_style.css">
 </head>
 <body>
-    <!-- Background Decoration -->
-    <div class="bg-decoration"></div>
-    
-    <!-- Floating Books -->
-    <div class="floating-books">
-        <div class="floating-book"><i class="fas fa-book"></i></div>
-        <div class="floating-book"><i class="fas fa-book-open"></i></div>
-        <div class="floating-book"><i class="fas fa-graduation-cap"></i></div>
-        <div class="floating-book"><i class="fas fa-feather-alt"></i></div>
-        <div class="floating-book"><i class="fas fa-bookmark"></i></div>
-    </div>
-
     <div class="register-container">
         <!-- Left Side - Branding -->
-        <div class="register-branding">
+        <div class="register-left">
             <div class="brand-logo">
-                <div class="brand-icon">
-                    <i class="fas fa-user-plus"></i>
-                </div>
-                <h1 class="brand-title">Join Pahana Edu</h1>
-                <p class="brand-subtitle">Create your management account</p>
+                <i class="fas fa-book-open"></i>
+            </div>
+            <h1 class="brand-title">Pahana Edu<br>Bookstore</h1>
+            <p class="brand-subtitle">Management System Portal</p>
+            
+            <ul class="features">
+                <li><i class="fas fa-users"></i> Customer Management</li>
+                <li><i class="fas fa-boxes"></i> Inventory Control</li>
+                <li><i class="fas fa-receipt"></i> Smart Billing</li>
+                <li><i class="fas fa-chart-line"></i> Business Analytics</li>
+            </ul>
+        </div>
+        
+        <!-- Right Side - Register Form -->
+        <div class="register-right">
+            <div class="register-header">
+                <h2>Create Account</h2>
+                <p>Join our bookstore management system</p>
             </div>
             
-            <div class="brand-benefits">
-                <div class="benefit-item">
-                    <div class="benefit-icon">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <span>Secure Account Protection</span>
-                </div>
-                <div class="benefit-item">
-                    <div class="benefit-icon">
-                        <i class="fas fa-tachometer-alt"></i>
-                    </div>
-                    <span>Full Dashboard Access</span>
-                </div>
-                <div class="benefit-item">
-                    <div class="benefit-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <span>Team Collaboration</span>
-                </div>
-                <div class="benefit-item">
-                    <div class="benefit-icon">
-                        <i class="fas fa-headset"></i>
-                    </div>
-                    <span>24/7 Support Access</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Right Side - Registration Form -->
-        <div class="register-form-section">
-            <div class="form-header">
-                <h2 class="form-title">Create Account</h2>
-                <p class="form-subtitle">Join our bookstore management system</p>
-            </div>
-
-            <!-- Display Messages -->
+            <!-- Error/Success Messages -->
             <c:if test="${not empty errorMessage}">
                 <div class="alert alert-error">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <span>${errorMessage}</span>
+                    <i class="fas fa-exclamation-triangle"></i> ${errorMessage}
                 </div>
             </c:if>
             
             <c:if test="${not empty successMessage}">
                 <div class="alert alert-success">
-                    <i class="fas fa-check-circle"></i>
-                    <span>${successMessage}</span>
+                    <i class="fas fa-check-circle"></i> ${successMessage}
                 </div>
             </c:if>
-
-            <!-- Registration Form -->
-            <form method="post" action="${pageContext.request.contextPath}/register" id="registrationForm">
-                <div class="form-grid">
+            
+            <form method="post" id="registerForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <div class="input-icon">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="username" name="username" 
+                               value="${username}" required maxlength="50"
+                               placeholder="Enter your username">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="fullName">Full Name</label>
+                    <div class="input-icon">
+                        <i class="fas fa-id-card"></i>
+                        <input type="text" id="fullName" name="fullName" 
+                               value="${fullName}" required maxlength="100"
+                               placeholder="Enter your full name">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <div class="input-icon">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="email" name="email" 
+                               value="${email}" required maxlength="100"
+                               placeholder="Enter your email address">
+                    </div>
+                </div>
+                
+                <div class="form-row">
                     <div class="form-group">
-                        <label for="username" class="form-label">Username</label>
-                        <div class="input-wrapper">
-                            <i class="input-icon fas fa-user"></i>
-                            <input type="text" 
-                                   id="username" 
-                                   name="username" 
-                                   class="form-input"
-                                   placeholder="Choose username"
-                                   required 
-                                   autofocus>
+                        <label for="password">Password</label>
+                        <div class="input-icon">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="password" name="password" 
+                                   required minlength="6" maxlength="255"
+                                   placeholder="Enter password">
                         </div>
                     </div>
-
+                    
                     <div class="form-group">
-                        <label for="fullName" class="form-label">Full Name</label>
-                        <div class="input-wrapper">
-                            <i class="input-icon fas fa-id-card"></i>
-                            <input type="text" 
-                                   id="fullName" 
-                                   name="fullName" 
-                                   class="form-input"
-                                   placeholder="Enter full name"
-                                   required>
+                        <label for="confirmPassword">Confirm Password</label>
+                        <div class="input-icon">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="confirmPassword" name="confirmPassword" 
+                                   required minlength="6" maxlength="255"
+                                   placeholder="Confirm password">
                         </div>
                     </div>
                 </div>
-
-                <div class="form-group full-width">
-                    <label for="email" class="form-label">Email Address</label>
-                    <div class="input-wrapper">
-                        <i class="input-icon fas fa-envelope"></i>
-                        <input type="email" 
-                               id="email" 
-                               name="email" 
-                               class="form-input"
-                               placeholder="Enter email address">
-                    </div>
-                </div>
-
-                <div class="form-group full-width">
-                    <label for="password" class="form-label">Password</label>
-                    <div class="input-wrapper">
-                        <i class="input-icon fas fa-lock"></i>
-                        <input type="password" 
-                               id="password" 
-                               name="password" 
-                               class="form-input"
-                               placeholder="Create secure password"
-                               required>
-                        <button type="button" class="password-toggle" onclick="togglePassword()">
-                            <i class="fas fa-eye" id="passwordToggleIcon"></i>
-                        </button>
-                    </div>
-                    <div class="password-strength" id="passwordStrength">
-                        <div class="strength-bar">
-                            <div class="strength-fill" id="strengthFill"></div>
-                        </div>
-                        <div class="strength-text" id="strengthText">Password strength</div>
-                    </div>
-                </div>
-
-                <button type="submit" class="submit-btn" id="submitBtn">
+                
+                <button type="submit" class="register-btn">
                     <i class="fas fa-user-plus"></i> Create Account
                 </button>
             </form>
-
+            
             <div class="login-link">
-                <p>Already have an account? <a href="${pageContext.request.contextPath}/login">Login here</a></p>
+                Already have an account? 
+                <a href="${pageContext.request.contextPath}/pages/login.jsp">Sign In</a>
             </div>
-
-            <div class="register-footer">
-                <p>&copy; 2025 Pahana Edu Bookstore Management System</p>
+            
+            <div class="footer-text">
+                © 2025 Pahana Edu Bookstore Management System<br>
+                Secure portal for authorized personnel only
             </div>
         </div>
     </div>
-  <script src="${pageContext.request.contextPath}/js/register.js"></script>
+
+    <script>
+        // Form validation
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                e.preventDefault();
+                alert('Passwords do not match!');
+                return false;
+            }
+            
+            if (password.length < 6) {
+                e.preventDefault();
+                alert('Password must be at least 6 characters long!');
+                return false;
+            }
+        });
+
+        // Real-time password confirmation check
+        document.getElementById('confirmPassword').addEventListener('input', function() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = this.value;
+            
+            if (confirmPassword && password !== confirmPassword) {
+                this.style.borderColor = '#e53e3e';
+                this.style.backgroundColor = '#fed7d7';
+            } else {
+                this.style.borderColor = '#e1e8ed';
+                this.style.backgroundColor = '#f8f9fa';
+            }
+        });
+
+        // Auto-hide success message and redirect to login
+        document.addEventListener('DOMContentLoaded', function() {
+            const successAlert = document.querySelector('.alert-success');
+            if (successAlert) {
+                setTimeout(function() {
+                    window.location.href = '${pageContext.request.contextPath}/pages/login.jsp';
+                }, 3000);
+            }
+        });
+
+        console.log('Register page loaded');
+    </script>
 </body>
 </html>

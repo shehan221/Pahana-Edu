@@ -27,10 +27,6 @@ public class AuthFilter implements Filter {
             requestURI.endsWith("/login.jsp") ||
             requestURI.endsWith("/register") ||
             requestURI.endsWith("/register.jsp") ||
-            requestURI.contains("/css/") ||
-            requestURI.contains("/js/") ||
-            requestURI.contains("/images/") ||
-            requestURI.endsWith("/") ||
             requestURI.equals(contextPath)) {
 
             chain.doFilter(request, response);

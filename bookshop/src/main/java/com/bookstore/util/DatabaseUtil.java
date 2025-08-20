@@ -9,7 +9,7 @@ public class DatabaseUtil {
     // Database connection parameters
     private static final String DB_URL = "jdbc:mysql://localhost:3306/bookstore_db";
     private static final String DB_USERNAME = "root";
-    private static final String DB_PASSWORD = "123456"; // Change this to your MySQL password
+    private static final String DB_PASSWORD = "123456"; 
     private static final String DB_DRIVER = "com.mysql.cj.jdbc.Driver";
 
     // Static block to load the MySQL driver

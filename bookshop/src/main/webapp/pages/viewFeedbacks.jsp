@@ -6,8 +6,23 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/viewFeedback.css">
 </head>
 <body>
+<!-- Navigation Bar -->
+<nav class="navbar">
+    <div class="nav-links">
+        <a href="${pageContext.request.contextPath}/pages/dashboard.jsp">
+            <i class="fas fa-home"></i> Home
+        </a>
+        <a href="${pageContext.request.contextPath}/pages/profile.jsp">
+            <i class="fas fa-book"></i> profile
+        </a>
+        <a href="${pageContext.request.contextPath}/pages/adminDashboard.jsp">
+            <i class="fas fa-info-circle"></i> admin panel
+        </a>
+    </div>
+</nav>
 
 <h2>All Feedbacks</h2>
+
 
 <%
     Connection conn = null;
